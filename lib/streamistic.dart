@@ -6,7 +6,8 @@ import 'package:flutter/widgets.dart';
 /// A widget that makes it easy to execute a [Stream] from a StatelessWidget.
 class Streamistic<T> extends StatefulWidget {
   /// Function that returns the [Stream] to execute. Not the [Stream] itself.
-  final AsyncValueGetter<T> streamBuilder;
+  final Stream<T> streamBuilder;
+  // was AsyncValueGetter<T>
 
   /// Whether to immediately begin executing the [Stream]. If true, [initialBuilder] must be null.
   final bool autoStart;
