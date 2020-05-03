@@ -2,77 +2,69 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-export 'streamistic.dart';
 
-/// A widget that makes it easy to execute a [Future] from a StatelessWidget.
-class Futuristic<T> extends StatefulWidget {
-  /// Function that returns the [Future] to execute. Not the [Future] itself.
-  final AsyncValueGetter<T> futureBuilder;
+/// A widget that makes it easy to execute a [Stream] from a StatelessWidget.
+class Streamistic<T> extends StatefulWidget {
+  /// Function that returns the [Stream] to execute. Not the [Stream] itself.
+  final Stream<T> streamBuilder; // was AsyncValueGetter
 
-  /// Whether to immediately begin executing the [Future]. If true, [initialBuilder] must be null.
-  final bool autoStart;
-
-  /// Widget to display before the [Future] starts executing.
-  /// Call [VoidCallback] to start executing the [Future].
+  /// Widget to display before the [Stream] starts executing.
+  /// Call [VoidCallback] to start executing the [Stream].
   /// If not null, [autoStart] should be false.
   final Widget Function(BuildContext, VoidCallback) initialBuilder;
 
-  /// Widget to display while the [Future] is executing.
+  /// Widget to display while the [Stream] is executing.
   /// If null, a [CircularProgressIndicator] will be displayed.
   final WidgetBuilder busyBuilder;
-
-  /// Widget to display when the [Future] has completed with an error.
+  
+  /// Widget to display when the [Stream] has completed with an error.
   /// If null, [initialBuilder] will be displayed again.
-  /// The [Object] is the [Error] or [Exception] returned by the [Future].
-  /// Call [VoidCallback] to start executing the [Future] again.
+  /// The [Object] is the [Error] or [Exception] returned by the [Stream].
+  /// Call [VoidCallback] to start executing the [Stream] again.
   final Widget Function(BuildContext, Object, VoidCallback) errorBuilder;
 
-  /// Widget to display when the [Future] has completed successfully.
+  /// Widget to display when the [Stream] has completed successfully.
   /// If null, [initialBuilder] will be displayed again.
   final Widget Function(BuildContext, T) dataBuilder;
 
-  /// Callback to invoke when the [Future] has completed successfully.
-  /// Will only be invoked once per [Future] execution.
+  /// Callback to invoke when the [Stream] has completed successfully.
+  /// Will only be invoked once per [Stream] execution.
   final ValueChanged<T> onData;
 
-  /// Callback to invoke when the [Future] has completed with an error.
-  /// Will only be invoked once per [Future] execution.
-  /// Call [VoidCallback] to start executing the [Future] again.
+  /// Callback to invoke when the [Stream] has completed with an error.
+  /// Will only be invoked once per [Stream] execution.
+  /// Call [VoidCallback] to start executing the [Stream] again.
   final Function(Object, VoidCallback) onError;
 
-  const Futuristic({
+  const Streamistic({
     Key key,
-    @required this.futureBuilder,
-    this.autoStart = false,
+    @required this.streamBuilder,
     this.initialBuilder,
     this.busyBuilder,
     this.errorBuilder,
     this.dataBuilder,
     this.onData,
     this.onError
-  })  : assert(futureBuilder != null),
-        assert(autoStart ^ (initialBuilder != null)),
+  })  : assert(streamBuilder != null),
         super(key: key);
 
   @override
-  _FuturisticState<T> createState() => _FuturisticState<T>();
+  _StreamisticState<T> createState() => _StreamisticState<T>();
 }
 
-class _FuturisticState<T> extends State<Futuristic<T>> {
-  Future<T> _future;
+class _StreamisticState<T> extends State<Streamistic<T>> {
+  Stream<T> _stream;
 
   @override
   void initState() {
     super.initState();
-    if (widget.autoStart) {
-      _execute();
-    }
+    _execute();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<T>(
-      future: _future,
+    return StreamBuilder<T>(
+      stream: _stream,
       builder: (_context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
@@ -130,8 +122,8 @@ class _FuturisticState<T> extends State<Futuristic<T>> {
 
   void _execute() {
     setState(() {
-      _future = widget.futureBuilder();
-      _future.then(_onData).catchError(_onError);
+      _stream = widget.streamBuilder();
+      _stream.then(_onData).catchError(_onError);
     });
   }
 
